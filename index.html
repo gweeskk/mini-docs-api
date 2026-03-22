@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Docs API Demo</title>
+</head>
+<body>
+  <h1>Mini Docs API Demo</h1>
+
+  <button id="loadDocsBtn">Загрузить документы</button>
+
+  <h2>Создать документ</h2>
+  <input type="text" id="titleInput" placeholder="Название документа" />
+  <input type="text" id="dateInput" placeholder="Дата создания" />
+  <button id="createDocBtn">Создать</button>
+
+  <h2>Список документов</h2>
+  <ul id="docsList"></ul>
+
+  <script>
+    const loadDocsBtn = document.getElementById("loadDocsBtn");
+    const createDocBtn = document.getElementById("createDocBtn");
+    const titleInput = document.getElementById("titleInput");
+    const dateInput = document.getElementById("dateInput");
+    const docsList = document.getElementById("docsList");
+
+    const API_URL = "http://127.0.0.1:4000/docs";
+
+    function renderDocs(docs) {
+      docsList.innerHTML = "";
+
+      docs.forEach(doc => {
+        const li = document.createElement("li");
+
+        const text = document.createElement("span");
+        text.textContent = `ID: ${doc.id} | ${doc.title} | ${doc.createdAt} `;
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Изменить";
+        editBtn.addEventListener("click", () => editDoc(doc));
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Удалить";
+        deleteBtn.addEventListener("click", () => deleteDoc(doc.id));
+
+        li.appendChild(text);
+        li.appendChild(editBtn);
+        li.appendChild(deleteBtn);
+
+        docsList.appendChild(li);
+      });
+    }
+
+    async function loadDocs() {
+      try {
+        const response = await fetch(API_URL);
+        const docs = await response.json();
+        renderDocs(docs);
+      } catch (error) {
+        console.error("Ошибка загрузки документов:", error);
+      }
+    }
+
+    async function createDoc() {
+      const title = titleInput.value;
+      const createdAt = dateInput.value;
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            title: title,
+            createdAt: createdAt
+          })
+        });
+
+        const newDoc = await response.json();
+        console.log("Создан документ:", newDoc);
+
+        loadDocs();
+
+        titleInput.value = "";
+        dateInput.value = "";
+      } catch (error) {
+        console.error("Ошибка создания документа:", error);
+      }
+    }
+
+    async function deleteDoc(id) {
+      try {
+        const response = await fetch(`${API_URL}/${id}`, {
+          method: "DELETE"
+        });
+
+        const result = await response.json();
+        console.log("Удаление:", result);
+
+        loadDocs();
+      } catch (error) {
+        console.error("Ошибка удаления документа:", error);
+      }
+    }
+
+    async function editDoc(doc) {
+      const newTitle = prompt("Введите новое название документа:", doc.title);
+      const newDate = prompt("Введите новую дату:", doc.createdAt);
+
+      if (!newTitle) {
+        return;
+      }
+
+      try {
+      const response = await fetch(`${API_URL}/${doc.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+          },
+        body: JSON.stringify({
+        title: newTitle,
+        createdAt: newDate
+        })
+      });
+
+        const updatedDoc = await response.json();
+        console.log("Обновлен документ:", updatedDoc);
+
+        loadDocs();
+      } catch (error) {
+        console.error("Ошибка обновления документа:", error);
+      }
+    }
+
+    loadDocsBtn.addEventListener("click", loadDocs);
+    createDocBtn.addEventListener("click", createDoc);
+  </script>
+</body>
+</html>
