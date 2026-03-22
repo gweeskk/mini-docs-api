@@ -1,86 +1,142 @@
 const express = require("express");
 const app = express();
+const db = require("./db");
 
 app.use(express.json());
 
-let docs = [
-  { id: 1, title: "Document1", createdAt: "18.03.2026" },
-  { id: 2, title: "Document2", createdAt: "18.03.2026" },
-  { id: 3, title: "Document3", createdAt: "18.03.2026" }
-];
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+})
 
 app.get("/docs", (req, res) => {
-  res.json(docs);
+  const { title, date } = req.query;
+
+  let sql = "SELECT * FROM docs";
+  let values = [];
+
+  if (title) {
+    sql += " WHERE title = ?";
+    values.push(title);
+  }
+  if (date) {
+    if (values.length > 0) {
+      sql += " AND createdAt = ?";
+    } else {
+      sql += " WHERE createdAt = ?";
+    }
+    values.push(date);
+    }
+
+  db.query(sql, values, (err,results) => {
+    if (err) {
+      return res.status(500).json({ message: "Ошибка получения документов"});
+    }
+
+    res.json(results);
+  });
 });
 
 app.get("/docs/:id", (req, res) => {
   const docId = Number(req.params.id);
-  const doc = docs.find(item => item.id === docId);
+  const sql = "SELECT * FROM docs WHERE id = ?"; 
 
-  if (!doc) {
-    return res.status(404).json({ message: "Документ не найден" });
-  }
-
-  res.json(doc);
+  db.query(sql, [docId], (err, results) => {  
+    if (err) {
+      return res.status(500).json({ message: "Ошибка получения документа" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Документ не найден" });
+    }
+  res.json(results[0]);
+  });
 });
 
 app.post("/docs", (req, res) => {
-  const { title, createdAt} = req.body;
+  const { title, createdAt } = req.body;
 
   if (!title) {
     return res.status(400).json({ message: "Просьба назвать документ" });
   }
 
+  const sql = "INSERT INTO docs (title, createdAt) VALUES (?, ?)";
+  const values = [title, createdAt || "18.03.2026"];
 
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: "Ошибка создания документа" });
+      
+    }
   const newDoc = {
-    id: docs.length + 1,
-    title: req.body.title,
-    createdAt: createdAt || "18.03.2026" 
-};
-
-docs.push(newDoc);
-
-res.status(201).json(newDoc);
-
+    id: result.insertId,
+    title, createdAt: createdAt || "18.03.2026" 
+    };
+    res.status(201).json(newDoc);
+  
 });
+});
+
 
 app.put("/docs/:id", (req, res) => {
   const docId = Number(req.params.id);
-  const doc = docs.find(item => item.id === docId);
+  const { title, createdAt } = req.body;
 
-  if (!doc) {
-    return res.status(404).json({ message: "Документ не найден" });
-  }
-
-  const {title, createdAt} = req.body;
   if (!title) {
     return res.status(400).json({ message: "Просьба назвать документ" });
   }
 
-  doc.title = title;
-  doc.createdAt = createdAt || doc.createdAt;
+  const checkSql ="SELECT * FROM docs WHERE id = ?";
+  db.query(checkSql, [docId], (err, results) =>{
+    if (err) {
+      return res.status(500).json({ message: "Ошибка получения документа" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json ({ message: "Документ не найден" });
+    }
+    const updateSql ="UPDATE docs SET title = ?, createdAt = ? WHERE id = ? ";
+    const updatedCreatedAt = createdAt || results[0].createdAt;
 
-  res.json(doc);
+    db.query(updateSql, [title, updatedCreatedAt, docId], (err) => {
+      if (err) {
+        return res.status(500).json({ message: "Ошибка обновления документа" });
+      }
+      const updateDoc = {
+        id: docId,
+        title,
+        createdAt: updatedCreatedAt
+      };
+      res.json(updateDoc);
+    });
+  });
 });
 
 app.delete("/docs/:id", (req, res) => {
   const docId = Number(req.params.id);
-  const docIndex = docs.findIndex(item => item.id === docId);
-  
-  if ( docIndex === -1) {
-    return res.status(404).json({ message: "Документ не найден" });
-  }
+  const checkSql = "SELECT * FROM docs WHERE id = ?";
 
-const deletedDoc = docs.splice(docIndex, 1)[0];
+  db.query(checkSql, [docId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Ошибка получения документа" });
+    }
+    if (results.length ===0) {
+      return res.status(404).json ({ message: "Документ не найден" });
+    }
+    const deletedDoc = results[0];
+    const deleteSql = "DELETE FROM docs WHERE id = ?";
 
-res.json({
-  message: "Документ удален",
-  deletedDoc: deletedDoc
+    db.query(deleteSql, [docId], (err) => {
+      if(err) {
+        return res.status(500).json({ message: "Ошибка удаления документа" });
+      }
+      res.json ({
+        message: " Документ удален",
+        deletedDoc: deletedDoc
+      });
+    });
+  });
 });
 
-});
-
-app.listen(3000, () => {
-  console.log("server started on port 3000");
+app.listen(4000, () => {
+  console.log("server started on port 4000");
 });
 
