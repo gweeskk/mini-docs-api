@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini Docs API Demo</title>
 </head>
 <body>
-  <h1>Mini Docs API</h1>
+  <h1>Mini Docs API Demo</h1>
 
   <button id="loadDocsBtn">Загрузить документы</button>
 
   <h2>Создать документ</h2>
-  <input type="text" id="titleInput" placeholder="Название документа" />
-  <input type="text" id="dateInput" placeholder="Дата создания" />
+  <input type="text" id="titleInput" placeholder="Название документа">
+  <input type="text" id="dateInput" placeholder="Дата создания">
   <button id="createDocBtn">Создать</button>
 
   <h2>Список документов</h2>
@@ -30,19 +30,26 @@
     function renderDocs(docs) {
       docsList.innerHTML = "";
 
-      docs.forEach(doc => {
+      docs.forEach((doc) => {
         const li = document.createElement("li");
+        li.style.marginBottom = "8px";
 
         const text = document.createElement("span");
         text.textContent = `ID: ${doc.id} | ${doc.title} | ${doc.createdAt} `;
 
         const editBtn = document.createElement("button");
         editBtn.textContent = "Изменить";
-        editBtn.addEventListener("click", () => editDoc(doc));
+        editBtn.style.marginLeft = "8px";
+        editBtn.addEventListener("click", function () {
+          editDoc(doc);
+        });
 
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Удалить";
-        deleteBtn.addEventListener("click", () => deleteDoc(doc.id));
+        deleteBtn.style.marginLeft = "5px";
+        deleteBtn.addEventListener("click", function () {
+          deleteDoc(doc.id);
+        });
 
         li.appendChild(text);
         li.appendChild(editBtn);
@@ -58,13 +65,18 @@
         const docs = await response.json();
         renderDocs(docs);
       } catch (error) {
-        console.error("Ошибка загрузки документов:", error);
+        console.log("Ошибка загрузки документов", error);
       }
     }
 
     async function createDoc() {
-      const title = titleInput.value;
-      const createdAt = dateInput.value;
+      const title = titleInput.value.trim();
+      const createdAt = dateInput.value.trim();
+
+      if (!title) {
+        alert("Введите название документа");
+        return;
+      }
 
       try {
         const response = await fetch(API_URL, {
@@ -86,7 +98,7 @@
         titleInput.value = "";
         dateInput.value = "";
       } catch (error) {
-        console.error("Ошибка создания документа:", error);
+        console.log("Ошибка создания документа", error);
       }
     }
 
@@ -101,36 +113,36 @@
 
         loadDocs();
       } catch (error) {
-        console.error("Ошибка удаления документа:", error);
+        console.log("Ошибка удаления документа", error);
       }
     }
 
     async function editDoc(doc) {
-      const newTitle = prompt("Введите новое название документа:", doc.title);
-      const newDate = prompt("Введите новую дату:", doc.createdAt);
+      const newTitle = prompt("Введите новое название документа", doc.title);
+      const newDate = prompt("Введите новую дату", doc.createdAt);
 
       if (!newTitle) {
         return;
       }
 
       try {
-      const response = await fetch(`${API_URL}/${doc.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
+        const response = await fetch(`${API_URL}/${doc.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
           },
-        body: JSON.stringify({
-        title: newTitle,
-        createdAt: newDate
-        })
-      });
+          body: JSON.stringify({
+            title: newTitle,
+            createdAt: newDate
+          })
+        });
 
         const updatedDoc = await response.json();
-        console.log("Обновлен документ:", updatedDoc);
+        console.log("Документ обновлен:", updatedDoc);
 
         loadDocs();
       } catch (error) {
-        console.error("Ошибка обновления документа:", error);
+        console.log("Ошибка обновления документа", error);
       }
     }
 

@@ -41,3 +41,12 @@ node app.js
 
 ## Главная страница
 - index.html — минимальная страница для загрузки, создания, изменения и удаления документов через API
+
+### API
+![POST docs](./screen/Thunder.png)
+
+### MySQL / phpMyAdmin
+![docs table](./screen/phpmyadmin.png)
+
+### Demo page
+![index.html](./screen/web.png)
