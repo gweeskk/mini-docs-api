@@ -19,8 +19,8 @@ app.get("/docs", (req, res) => {
   let values = [];
 
   if (title) {
-    sql += " WHERE title = ?";
-    values.push(title);
+    sql += " WHERE title LIKE ?";
+    values.push(`%${title}%`);
   }
   if (date) {
     if (values.length > 0) {
@@ -56,14 +56,15 @@ app.get("/docs/:id", (req, res) => {
 });
 
 app.post("/docs", (req, res) => {
-  const { title, createdAt } = req.body;
+  const { title, createdAt, description } = req.body;
+  
 
-  if (!title) {
+  if (!title || title.trim() === "") {
     return res.status(400).json({ message: "Просьба назвать документ" });
   }
 
-  const sql = "INSERT INTO docs (title, createdAt) VALUES (?, ?)";
-  const values = [title, createdAt || "18.03.2026"];
+  const sql = "INSERT INTO docs (title, createdAt, description) VALUES (?, ?,?)";
+  const values = [title, createdAt || "18.03.2026", description || ""];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -72,7 +73,8 @@ app.post("/docs", (req, res) => {
     }
   const newDoc = {
     id: result.insertId,
-    title, createdAt: createdAt || "18.03.2026" 
+    title, createdAt: createdAt || "18.03.2026",
+    description: description || ""
     };
     res.status(201).json(newDoc);
   
@@ -82,9 +84,9 @@ app.post("/docs", (req, res) => {
 
 app.put("/docs/:id", (req, res) => {
   const docId = Number(req.params.id);
-  const { title, createdAt } = req.body;
+  const { title, createdAt, description } = req.body;
 
-  if (!title) {
+  if (!title || title.trim() === "") {
     return res.status(400).json({ message: "Просьба назвать документ" });
   }
 
@@ -96,17 +98,19 @@ app.put("/docs/:id", (req, res) => {
     if (results.length === 0) {
       return res.status(404).json ({ message: "Документ не найден" });
     }
-    const updateSql ="UPDATE docs SET title = ?, createdAt = ? WHERE id = ? ";
+    const updateSql ="UPDATE docs SET title = ?, createdAt = ?, description = ? WHERE id = ? ";
     const updatedCreatedAt = createdAt || results[0].createdAt;
+    const updatedDescription = description || results[0].description;
 
-    db.query(updateSql, [title, updatedCreatedAt, docId], (err) => {
+    db.query(updateSql, [title, updatedCreatedAt, updatedDescription, docId], (err) => {
       if (err) {
         return res.status(500).json({ message: "Ошибка обновления документа" });
       }
       const updateDoc = {
         id: docId,
         title,
-        createdAt: updatedCreatedAt
+        createdAt: updatedCreatedAt,
+        description: updatedDescription
       };
       res.json(updateDoc);
     });

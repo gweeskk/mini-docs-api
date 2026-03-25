@@ -12,13 +12,23 @@
 - обработка ошибок
 - фильтрация через query params
 - middleware для логирования запросов
-- простая HTML-страница для работы с API через fetch
+- поиск по части названия через `LIKE`
+- простая HTML-страница для работы с API через `fetch`
 
 ## Стек
 - Node.js
 - Express
 - JavaScript
 - MySQL
+- HTML
+- Fetch API
+
+## Структура данных
+Таблица `docs` содержит поля:
+- `id`
+- `title`
+- `createdAt`
+- `description`
 
 ## Запуск проекта
 ```bash

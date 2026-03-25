@@ -13,6 +13,7 @@
   <h2>Создать документ</h2>
   <input type="text" id="titleInput" placeholder="Название документа">
   <input type="text" id="dateInput" placeholder="Дата создания">
+  <input type="text" id="descriptionInput" placeholder="Описание документа">
   <button id="createDocBtn">Создать</button>
 
   <h2>Список документов</h2>
@@ -24,6 +25,7 @@
     const titleInput = document.getElementById("titleInput");
     const dateInput = document.getElementById("dateInput");
     const docsList = document.getElementById("docsList");
+    const descriptionInput = document.getElementById("descriptionInput")
 
     const API_URL = "http://127.0.0.1:4000/docs";
 
@@ -35,7 +37,7 @@
         li.style.marginBottom = "8px";
 
         const text = document.createElement("span");
-        text.textContent = `ID: ${doc.id} | ${doc.title} | ${doc.createdAt} `;
+        text.textContent = `ID: ${doc.id} | ${doc.title} | ${doc.createdAt} | ${doc.description}`;
 
         const editBtn = document.createElement("button");
         editBtn.textContent = "Изменить";
@@ -72,6 +74,7 @@
     async function createDoc() {
       const title = titleInput.value.trim();
       const createdAt = dateInput.value.trim();
+      const description = descriptionInput.value.trim();
 
       if (!title) {
         alert("Введите название документа");
@@ -86,7 +89,8 @@
           },
           body: JSON.stringify({
             title: title,
-            createdAt: createdAt
+            createdAt: createdAt,
+            description: description
           })
         });
 
@@ -97,6 +101,7 @@
 
         titleInput.value = "";
         dateInput.value = "";
+        descriptionInput.value ="";
       } catch (error) {
         console.log("Ошибка создания документа", error);
       }
@@ -120,6 +125,7 @@
     async function editDoc(doc) {
       const newTitle = prompt("Введите новое название документа", doc.title);
       const newDate = prompt("Введите новую дату", doc.createdAt);
+      const newDescription = prompt("Введите новое описание документа", doc.description);
 
       if (!newTitle) {
         return;
@@ -133,7 +139,8 @@
           },
           body: JSON.stringify({
             title: newTitle,
-            createdAt: newDate
+            createdAt: newDate,
+            description: newDescription
           })
         });
 
