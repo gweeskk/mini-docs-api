@@ -38,13 +38,6 @@ node app.js
 ```
 
 ## Основные маршруты API
-- `GET /docs?title=Doc`
-- `GET /docs?date=21.03.2026`
-- `GET /docs?title=Doc&date=21.03.2026`
-- `GET /docs?search=doc`
-- `GET /docs?search=doc&date=24.03.2026`
-
-## Query params 
 Примеры:
 - `GET /docs?title=Doc`
 - `GET /docs?date=21.03.2026`
