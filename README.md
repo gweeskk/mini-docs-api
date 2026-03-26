@@ -11,8 +11,9 @@
 - базовая валидация
 - обработка ошибок
 - фильтрация через query params
-- middleware для логирования запросов
 - поиск по части названия через `LIKE`
+- общий поиск по `title` и `description` через параметр `search`
+- middleware для логирования запросов
 - простая HTML-страница для работы с API через `fetch`
 
 ## Стек
@@ -37,26 +38,33 @@ node app.js
 ```
 
 ## Основные маршруты API
-- GET /docs
-- GET /docs/:id
-- POST /docs
-- PUT /docs/:id
-- DELETE /docs/:id
+- `GET /docs?title=Doc`
+- `GET /docs?date=21.03.2026`
+- `GET /docs?title=Doc&date=21.03.2026`
+- `GET /docs?search=doc`
+- `GET /docs?search=doc&date=24.03.2026`
 
 ## Query params 
 Примеры:
-- GET /docs?title=Doc_1
-- GET /docs?date=21.03.2026
-- GET /docs?title=Doc_1&date=21.03.2026
+- `GET /docs?title=Doc`
+- `GET /docs?date=21.03.2026`
+- `GET /docs?description=книги`
+- `GET /docs?title=Doc&date=21.03.2026`
+- `GET /docs?search=doc`
+- `GET /docs?search=doc&date=24.03.2026`
 
 ## Главная страница
 - index.html — минимальная страница для загрузки, создания, изменения и удаления документов через API
 
-### Thunder Client
-![POST docs](./screen/Thunder.png)
+### index.html
+![index.html](./screen/web.png)
+
 
 ### MySQL / phpMyAdmin
 ![docs table](./screen/phpmyadmin.png)
 
-### index.html
-![index.html](./screen/web.png)
+### Thunder Client
+![POST docs](./screen/Thunder.png)
+
+
+

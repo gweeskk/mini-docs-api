@@ -13,15 +13,20 @@ app.use((req, res, next) => {
 })
 
 app.get("/docs", (req, res) => {
-  const { title, date } = req.query;
+  const { title, date, search } = req.query;
 
   let sql = "SELECT * FROM docs";
   let values = [];
 
-  if (title) {
-    sql += " WHERE title LIKE ?";
-    values.push(`%${title}%`);
+  if(search) {
+    sql += " WHERE title LIKE ? OR description LIKE ?";
+    values.push(`%${search}%`, `%${search}%`);
   }
+    else if (title) {
+      sql += " WHERE title LIKE ? ";
+      values.push(`%${title}%`);
+    }
+
   if (date) {
     if (values.length > 0) {
       sql += " AND createdAt = ?";
@@ -143,6 +148,7 @@ app.delete("/docs/:id", (req, res) => {
   });
 });
 
-app.listen(4000, () => {
-  console.log("server started on port 4000");
+const PORT = process.env.PORT || 4000
+app.listen(PORT, () => {
+  console.log(`server started on port ${PORT}`);
 });
