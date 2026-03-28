@@ -36,8 +36,16 @@
 npm install
 node app.js 
 ```
+Сервер запускается на `http://127.0.0.1:4000`
 
 ## Основные маршруты API
+- GET /docs
+- GET /docs/:id
+- POST /docs
+- PUT /docs/:id
+- DELETE /docs/:id
+
+## Query params
 Примеры:
 - `GET /docs?title=Doc`
 - `GET /docs?date=21.03.2026`
@@ -45,6 +53,13 @@ node app.js
 - `GET /docs?title=Doc&date=21.03.2026`
 - `GET /docs?search=doc`
 - `GET /docs?search=doc&date=24.03.2026`
+
+## Что улучшено в текущей версии
+- добавлено поле description
+- поиск по части названия через LIKE
+- общий поиск по title и description через параметр search
+- конфигурация базы вынесена в .env
+- улучшена демо-страница: поиск, сообщения пользователю, очистка списка
 
 ## Главная страница
 - index.html — минимальная страница для загрузки, создания, изменения и удаления документов через API
