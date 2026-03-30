@@ -42,6 +42,7 @@ app.get("/docs", (req, res) => {
     }
 
     res.json(results);
+
   });
 });
 
